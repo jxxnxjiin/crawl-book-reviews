@@ -122,9 +122,11 @@ def crawl_all_reviews(search_url, output_dir="./results", max_reviews_per_book=1
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("사용법: python main_crawler.py <검색결과URL>")
-        print('예시: python main_crawler.py "https://www.yes24.com/product/search?query=블랙라벨"')
+        print("사용법: python main_crawler.py <URL> [최대리뷰수]")
+        print('예시: python main_crawler.py "https://www.yes24.com/product/search?query=블랙라벨" 10')
         sys.exit(1)
     
     search_url = sys.argv[1]
-    crawl_all_reviews(search_url)
+    max_reviews = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+    
+    crawl_all_reviews(search_url, max_reviews_per_book=max_reviews)
