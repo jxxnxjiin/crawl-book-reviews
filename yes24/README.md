@@ -2,6 +2,14 @@
 
 예스24 검색 결과 또는 카테고리 페이지에서 상품 리뷰를 수집합니다.
 
+## 설치
+
+```bash
+pip install -r requirements.txt
+```
+
+> Chrome/Chromium과 chromedriver가 설치되어 있어야 합니다.
+
 ## 사용법
 
 ```bash
