@@ -4,28 +4,28 @@
 
 ## 설치
 
-```bash
-pip install -r requirements.txt
-```
-
 > Chrome/Chromium과 chromedriver가 설치되어 있어야 합니다.
+
+```bash
+pip install selenium beautifulsoup4 pandas requests
+```
 
 ## 사용법
 
 ```bash
-python main_crawler.py <URL> [최대리뷰수]
+python main_crawler.py <키워드|URL> [최대리뷰수]
 ```
 
 ### 예시
 
 ```bash
-# 검색 결과에서 크롤링 (기본 책당 10개 리뷰)
-python main_crawler.py "https://www.yes24.com/product/search?query=블랙라벨"
+# 키워드로 검색 (기본 책당 10개 리뷰)
+python main_crawler.py "블랙라벨"
 
 # 책당 최대 20개 리뷰 수집
-python main_crawler.py "https://www.yes24.com/product/search?query=블랙라벨" 20
+python main_crawler.py "블랙라벨" 20
 
-# 카테고리 페이지에서 크롤링
+# 카테고리 URL로 크롤링
 python main_crawler.py "https://www.yes24.com/product/category/display/001001050003" 15
 ```
 

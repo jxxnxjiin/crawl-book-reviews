@@ -13,11 +13,11 @@ import sys
 import time
 
 
-def crawl_all_reviews(search_url, output_dir="./results", max_reviews_per_book=10):
+def crawl_all_reviews(query, output_dir="./results", max_reviews_per_book=10):
     """
     검색 결과의 모든 상품에 대해 리뷰 크롤링
     
-    search_url: 예스24 검색 결과 URL
+    query: 검색 키워드 또는 URL
     output_dir: 결과 저장 폴더
     max_reviews_per_book: 책당 최대 리뷰 수 (기본값: 10)
     """
@@ -27,7 +27,7 @@ def crawl_all_reviews(search_url, output_dir="./results", max_reviews_per_book=1
     print("1단계: 검색 결과에서 상품 목록 추출")
     print("=" * 60)
     
-    goods_dict = get_goods_no(search_url)
+    goods_dict = get_goods_no(query)
     
     if not goods_dict:
         print("상품을 찾을 수 없습니다.")
@@ -122,11 +122,12 @@ def crawl_all_reviews(search_url, output_dir="./results", max_reviews_per_book=1
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("사용법: python main_crawler.py <URL> [최대리뷰수]")
-        print('예시: python main_crawler.py "https://www.yes24.com/product/search?query=블랙라벨" 10')
+        print("사용법: python main_crawler.py <키워드|URL> [최대리뷰수]")
+        print('예시: python main_crawler.py "어린왕자자" 10')
+        print('예시: python main_crawler.py "https://www.yes24.com/product/category/display/001001050003" 20')
         sys.exit(1)
     
-    search_url = sys.argv[1]
+    query = sys.argv[1]
     max_reviews = int(sys.argv[2]) if len(sys.argv) > 2 else 10
     
-    crawl_all_reviews(search_url, max_reviews_per_book=max_reviews)
+    crawl_all_reviews(query, max_reviews_per_book=max_reviews)
