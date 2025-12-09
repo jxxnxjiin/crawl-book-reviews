@@ -7,14 +7,10 @@ def get_goods_no(query):
     예스24에서 상품 목록 추출
     
     query: 검색 키워드 또는 전체 URL
-    - 키워드: "블랙라벨" → 검색 URL로 변환
-    - URL: "https://www.yes24.com/..." → 그대로 사용
+    - 키워드: "어린왕자" → 검색 URL로 변환
     """
     # URL인지 키워드인지 자동 감지
-    if query.startswith("http"):
-        url = query
-    else:
-        url = f"https://www.yes24.com/product/search?query={query}"
+    url = f"https://www.yes24.com/product/search?query={query}"
     
     goods_no_dict = {}
     req = requests.get(url)

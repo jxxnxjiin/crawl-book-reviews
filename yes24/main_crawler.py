@@ -123,8 +123,7 @@ def crawl_all_reviews(query, output_dir="./results", max_reviews_per_book=10):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("사용법: python main_crawler.py <키워드|URL> [최대리뷰수]")
-        print('예시: python main_crawler.py "어린왕자자" 10')
-        print('예시: python main_crawler.py "https://www.yes24.com/product/category/display/001001050003" 20')
+        print('예시: python main_crawler.py "어린왕자" 10')
         sys.exit(1)
     
     query = sys.argv[1]

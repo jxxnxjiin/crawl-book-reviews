@@ -13,20 +13,17 @@ pip install selenium beautifulsoup4 pandas requests
 ## 사용법
 
 ```bash
-python main_crawler.py <키워드|URL> [최대리뷰수]
+python main_crawler.py <키워드> [최대리뷰수]
 ```
 
 ### 예시
 
 ```bash
 # 키워드로 검색 (기본 책당 10개 리뷰)
-python main_crawler.py "블랙라벨"
+python main_crawler.py "어린왕자"
 
 # 책당 최대 20개 리뷰 수집
-python main_crawler.py "블랙라벨" 20
-
-# 카테고리 URL로 크롤링
-python main_crawler.py "https://www.yes24.com/product/category/display/001001050003" 15
+python main_crawler.py "어린왕자" 20
 ```
 
 ## 출력
