@@ -94,8 +94,8 @@ def crawl_all_reviews(goods_dict, output_dir="./results", max_reviews_per_book=1
                     'file': None if save_mode == 'individual' else None
                 })
             
-            # 서버 부하 방지를 위한 대기 (상품 간 5초)
-            time.sleep(5)
+            # 서버 부하 방지를 위한 대기 (상품 간 2초)
+            time.sleep(2)
             
         except Exception as e:
             print(f"✗ 에러 발생: {e}")
