@@ -5,8 +5,8 @@
 3. 책 한 권당 CSV 파일 하나씩 저장
 """
 
-from goods_no_crawler import get_goods_no
-from yes24_review_crawler import get_yes24_reviews, sanitize_filename
+from product_search import get_goods_no
+from review_scraper import get_yes24_reviews, sanitize_filename
 import pandas as pd
 import os
 import sys
@@ -53,7 +53,7 @@ def crawl_all_reviews(query, output_dir="./results", max_reviews_per_book=10):
         
         try:
             # 리뷰 크롤링 (최대 개수 제한)
-            reviews, _ = get_yes24_reviews(goods_no, max_reviews=max_reviews_per_book)
+            reviews = get_yes24_reviews(title, goods_no, max_reviews=max_reviews_per_book)
             
             # 파일명 생성
             filename = sanitize_filename(title)
