@@ -1,15 +1,35 @@
+"""
+예스24 상품 검색 모듈
+"""
+
 import requests
 from bs4 import BeautifulSoup
-import sys
 
-def get_goods_no(query):
+# 정렬 옵션 상수
+ORDER_OPTIONS = {
+    '1': ('RELATION', '정확도순'),
+    '2': ('RECENT', '신상품순'),
+    '3': ('SINDEX_ONLY', '인기도순'),
+    '4': ('REG_DTS', '등록일순'),
+    '5': ('CONT_CNT', '평점순'),
+    '6': ('REVIE_CNT', '리뷰순'),
+}
+
+
+def build_search_url(query, size=40, order='RELATION', page=1):
+    """검색 URL 생성"""
+    return f"https://www.yes24.com/product/search?domain=ALL&query={query}&page={page}&size={size}&order={order}"
+
+
+def get_goods_no(query, size=40, order='RELATION'):
     """
     예스24에서 키워드 기반으로 상품 목록 추출
     
-    query: 검색 키워드 또는 전체 URL
-    - 키워드: "어린왕자" → 검색 URL로 변환
+    query: 검색 키워드
+    size: 검색 결과 수 (자연수)
+    order: 정렬 방식 (RELATION/RECENT/SINDEX_ONLY/REG_DTS/CONT_CNT/REVIE_CNT)
     """
-    url = f"https://www.yes24.com/product/search?query={query}"
+    url = build_search_url(query, size, order)
     
     goods_no_dict = {}
     req = requests.get(url)
@@ -27,11 +47,3 @@ def get_goods_no(query):
             goods_no_dict[title] = goods_no
     
     return goods_no_dict
-
-if __name__ == "__main__":
-    query = sys.argv[1]
-    goods_no_dict = get_goods_no(query)
-    
-    print(f"총 {len(goods_no_dict)}개 상품 발견:")
-    for i, (title, goods_no) in enumerate(goods_no_dict.items(), 1):
-        print(f"  {i}. {title} (상품번호: {goods_no})")  

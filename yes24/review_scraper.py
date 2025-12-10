@@ -1,7 +1,23 @@
+"""
+예스24 리뷰 크롤러 모듈
+requests + BeautifulSoup으로 리뷰 데이터 수집
+"""
+
+import requests
 from bs4 import BeautifulSoup
-from utils import get_chrome_driver
-import time
 import re
+
+
+def sanitize_filename(filename):
+    """파일명에 사용할 수 없는 문자 제거"""
+    filename = re.sub(r'[<>:"/\\|?*]', '', filename)
+    filename = filename.replace(' ', '_')
+    return filename
+
+
+def build_review_url(goods_no, page=1, sort=1):
+    """리뷰 URL 생성"""
+    return f"https://www.yes24.com/Product/communityModules/GoodsReviewList/{goods_no}?goodsSetYn=N&Sort={sort}&PageNumber={page}&Type=ALL"
 
 
 def parse_reviews_from_html(soup):
@@ -16,15 +32,13 @@ def parse_reviews_from_html(soup):
         rating_elem = item.select_one(".review_rating .total_rating")
         if rating_elem:
             rating_text = rating_elem.get_text(strip=True)
-            # 숫자만 추출 (예: "평점8점" → "8")
             rating_num = re.search(r'\d+', rating_text)
             review_data['rating'] = int(rating_num.group()) if rating_num else None
         
         # 리뷰 내용 추출
         content_elem = item.select_one(".reviewInfoBot.origin .review_cont")
         if content_elem:
-            content = content_elem.get_text(strip=True)
-            review_data['content'] = content
+            review_data['content'] = content_elem.get_text(strip=True)
         
         # 작성자 추출
         author_elem = item.select_one(".txt_id .lnk_id")
@@ -56,34 +70,25 @@ def get_max_page(soup):
     return 1
 
 
-def sanitize_filename(filename):
-    """파일명에 사용할 수 없는 문자 제거"""
-    # 파일명에 사용 불가능한 문자 제거
-    filename = re.sub(r'[<>:"/\\|?*]', '', filename)
-    # 공백을 언더스코어로
-    filename = filename.replace(' ', '_')
-    return filename
-
-
 def get_yes24_reviews(title, goods_no, max_reviews=10):
     """
     예스24 상품 리뷰 크롤링
+    
     title: 상품 제목
     goods_no: 상품 번호
     max_reviews: 최대 수집할 리뷰 수 (기본값: 10, None이면 전체 수집)
     """
-    driver = get_chrome_driver()
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
     
     all_reviews = []
-
+    
     try:
-        # 리뷰 API 직접 호출 (첫 페이지)
-        review_url = f"https://www.yes24.com/Product/communityModules/GoodsReviewList/{goods_no}?goodsSetYn=N&Sort=1&PageNumber=1&Type=ALL"
-        driver.get(review_url)
-        time.sleep(3)
-        
-        # 첫 페이지 파싱
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        # 첫 페이지 요청
+        url = build_review_url(goods_no, page=1)
+        response = requests.get(url, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
         
         # 최대 페이지 확인
         max_page = get_max_page(soup)
@@ -100,15 +105,12 @@ def get_yes24_reviews(title, goods_no, max_reviews=10):
             all_reviews = all_reviews[:max_reviews]
             print(f"\n최대 {max_reviews}개 리뷰 수집 완료.")
         else:
-            # 2페이지부터 순회 (max_reviews에 도달할 때까지)
+            # 2페이지부터 순회
             for page in range(2, max_page + 1):
-                # 리뷰 API 직접 호출
-                review_url = f"https://www.yes24.com/Product/communityModules/GoodsReviewList/{goods_no}?goodsSetYn=N&Sort=1&PageNumber={page}&Type=ALL"
-                driver.get(review_url)
-                time.sleep(3)  # 차단 방지를 위해 3초 대기
+                url = build_review_url(goods_no, page=page)
+                response = requests.get(url, headers=headers)
+                soup = BeautifulSoup(response.content, 'html.parser')
                 
-                # 파싱
-                soup = BeautifulSoup(driver.page_source, 'html.parser')
                 reviews = parse_reviews_from_html(soup)
                 all_reviews.extend(reviews)
                 print(f"페이지 {page}: {len(reviews)}개 리뷰 수집")
@@ -120,13 +122,10 @@ def get_yes24_reviews(title, goods_no, max_reviews=10):
                     break
             else:
                 print(f"\n총 {len(all_reviews)}개의 리뷰를 수집했습니다.")
-        
+    
     except Exception as e:
         print(f"에러 발생: {e}")
         import traceback
         traceback.print_exc()
-                
-    finally:
-        driver.quit()
     
     return all_reviews

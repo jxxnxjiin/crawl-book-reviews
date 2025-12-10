@@ -1,12 +1,12 @@
 """
-예스24 리뷰 크롤러 메인 스크립트
+교보문고 리뷰 크롤러 메인 스크립트
 1. 검색 결과에서 상품 목록 추출
-2. 각 상품별로 리뷰 크롤링 (최대 10개씩)
+2. 각 상품별로 리뷰 크롤링
 3. 개별 파일 또는 통합 파일로 저장
 """
 
 from product_search import get_goods_no, ORDER_OPTIONS
-from review_scraper import get_yes24_reviews, sanitize_filename
+from review_scraper import get_kyobo_reviews, sanitize_filename
 import pandas as pd
 import os
 import sys
@@ -51,7 +51,7 @@ def crawl_all_reviews(goods_dict, output_dir="./results", max_reviews_per_book=1
         
         try:
             # 리뷰 크롤링 (최대 개수 제한)
-            reviews = get_yes24_reviews(title, goods_no, max_reviews=max_reviews_per_book)
+            reviews = get_kyobo_reviews(title, goods_no, max_reviews=max_reviews_per_book)
             
             if reviews:
                 # 각 리뷰에 goods_no와 title 추가
@@ -94,8 +94,8 @@ def crawl_all_reviews(goods_dict, output_dir="./results", max_reviews_per_book=1
                     'file': None if save_mode == 'individual' else None
                 })
             
-            # 서버 부하 방지를 위한 대기 (상품 간 5초)
-            time.sleep(5)
+            # 서버 부하 방지를 위한 대기 (상품 간 2초)
+            time.sleep(2)
             
         except Exception as e:
             print(f"✗ 에러 발생: {e}")
@@ -154,7 +154,7 @@ def select_option(options, prompt):
 def main_interactive():
     """인터랙티브 모드로 실행"""
     print("=" * 50)
-    print("📚 예스24 리뷰 크롤러")
+    print("📚 교보문고 리뷰 크롤러")
     print("=" * 50)
     
     # 1단계: 키워드 입력
@@ -203,18 +203,18 @@ def main_cli():
         print("  빠른 실행:  python main_crawler.py <키워드> [최대리뷰수] [size] [order] [save_mode]")
         print("")
         print("예시:")
-        print('  python main_crawler.py "어린왕자" 10 40 RELATION individual')
-        print('  python main_crawler.py "어린왕자" 10 40 RELATION merged')
+        print('  python main_crawler.py "토익" 10 40 qntt individual')
+        print('  python main_crawler.py "토익" 10 40 date merged')
         print("")
         print("size: 원하는 검색 결과 수")
-        print("order: RELATION, RECENT, SINDEX_ONLY, REG_DTS, CONT_CNT, REVIE_CNT")
+        print("order: qntt(판매량), date(최신), kcont(클로버리뷰), krvgr(클로버평점), 빈문자열(인기도)")
         print("save_mode: individual (개별파일), merged (통합파일)")
         sys.exit(1)
     
     query = sys.argv[1]
     max_reviews = int(sys.argv[2]) if len(sys.argv) > 2 else 10
     size = int(sys.argv[3]) if len(sys.argv) > 3 else 40
-    order = sys.argv[4] if len(sys.argv) > 4 else 'RELATION'
+    order = sys.argv[4] if len(sys.argv) > 4 else ''
     save_mode = sys.argv[5] if len(sys.argv) > 5 else 'individual'
     
     print("=" * 60)
@@ -238,3 +238,4 @@ if __name__ == "__main__":
     else:
         # 인자 있으면 CLI 모드
         main_cli()
+
