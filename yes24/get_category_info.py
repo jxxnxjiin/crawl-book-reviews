@@ -118,15 +118,10 @@ def print_category_tree(categories):
     """카테고리 트리 출력 (depth 기반)"""
     # depth별로 정렬
     sorted_cats = sorted(categories.items(), key=lambda x: (x[1]["depth"], x[0]))
-    
+
     for cat_id, info in sorted_cats:
         indent = info["depth"] - 1
         print(f"{'  ' * indent}{cat_id}: {info['name']}")
-
-
-def build_new_product_url(category_number):
-    """신간도서 URL 생성"""
-    return f"https://www.yes24.com/product/category/newproduct?categoryNumber={category_number}"
 
 
 if __name__ == "__main__":

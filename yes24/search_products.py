@@ -5,6 +5,7 @@
 import requests
 from bs4 import BeautifulSoup
 import time
+from utils import build_search_url
 
 
 # 정렬 옵션
@@ -29,11 +30,6 @@ def _get_session():
     # 쿠키 획득을 위해 메인 페이지 먼저 방문
     session.get('https://www.yes24.com')
     return session
-
-
-def build_search_url(query, page=1, size=24, order='RELATION'):
-    """검색 URL 생성"""
-    return f"https://www.yes24.com/product/search?domain=ALL&query={query}&page={page}&size={size}&order={order}"
 
 
 def _parse_products_from_soup(soup):
