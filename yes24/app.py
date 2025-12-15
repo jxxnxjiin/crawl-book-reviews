@@ -15,7 +15,7 @@ from get_goods_no import get_goods_no
 from get_reviews import get_reviews
 from get_books_info import get_book_info
 from get_category_info import get_categories
-from utils import build_attention_url
+from utils import build_newly_published_url
 
 
 # 페이지 설정
@@ -223,101 +223,65 @@ elif pipeline.startswith("📗"):
 
 # 파이프라인 3: 카테고리 신간 → 세부정보 추출
 elif pipeline.startswith("📙"):
-    st.header("🔍 카테고리 신간 → 세부정보 추출")
+    st.header("📚 카테고리 신간 → 세부정보 추출")
 
-    # 사이드바에 캐시 새로고침 버튼 추가
-    if st.sidebar.button("🔄 카테고리 캐시 새로고침"):
-        with st.spinner("웹에서 카테고리 정보를 새로 가져오는 중..."):
-            st.session_state.categories = get_categories("001", use_cache=False)
-        st.sidebar.success("✓ 캐시 새로고침 완료!")
-        st.rerun()
-
-    # 카테고리 로드
+    # 카테고리 로드 (캐시 파일만 사용)
     if 'categories' not in st.session_state:
-        with st.spinner("카테고리 목록을 가져오는 중..."):
-            st.session_state.categories = get_categories("001")
+        st.session_state.categories = get_categories("001")
 
     categories = st.session_state.categories
 
     if not categories:
         st.error("❌ 카테고리를 가져올 수 없습니다.")
     else:
-        # 즐겨찾기 카테고리
-        st.subheader("⭐ 즐겨찾기")
-        fav_col1, fav_col2 = st.columns(2)
-
-        with fav_col1:
-            if st.button("📚 중등참고서", use_container_width=True):
-                st.session_state.selected_category = "001001049"
-
-        with fav_col2:
-            if st.button("📖 고등참고서", use_container_width=True):
-                st.session_state.selected_category = "001001050"
-
-        st.markdown("---")
-
         # 대분류 (depth=1) 추출
         major_categories = {cat_id: info for cat_id, info in categories.items() if info['depth'] == 1}
 
-        # 즐겨찾기에서 선택한 경우
-        if 'selected_category' in st.session_state:
-            selected_cat_id = st.session_state.selected_category
-            selected_cat_name = categories[selected_cat_id]['name']
-            st.info(f"✓ 즐겨찾기에서 선택됨: {selected_cat_name}")
+        # 대분류 선택
+        major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
+        if not major_options:
+            st.error("❌ 대분류를 찾을 수 없습니다.")
         else:
-            # 대분류 선택
-            major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
-            if not major_options:
-                st.error("❌ 대분류를 찾을 수 없습니다.")
-                selected_cat_id = None
-                selected_cat_name = None
-            else:
-                col1, col2 = st.columns(2)
+            col1, col2 = st.columns(2)
 
-                with col1:
-                    selected_major = st.radio(
-                        "대분류 선택",
-                        major_options,
-                        format_func=lambda x: f"{x[1]} ({x[0]})",
-                        index=0
+            with col1:
+                selected_major = st.radio(
+                    "대분류 선택",
+                    major_options,
+                    format_func=lambda x: f"{x[1]}",
+                    index=0
+                )
+                selected_major_id = selected_major[0]
+
+            with col2:
+                # 중분류 (선택한 대분류의 직계 자식) 추출
+                minor_cat_ids = categories[selected_major_id]['children']
+                minor_categories = {cat_id: categories[cat_id] for cat_id in minor_cat_ids}
+
+                if minor_categories:
+                    minor_options = [(cat_id, info['name']) for cat_id, info in sorted(minor_categories.items())]
+                    selected_minor = st.selectbox(
+                        f"중분류 선택 (총 {len(minor_categories)}개)",
+                        minor_options,
+                        format_func=lambda x: x[1]
                     )
-                    selected_major_id = selected_major[0]
 
-                with col2:
-                    # 중분류 (선택한 대분류의 직계 자식) 추출
-                    minor_cat_ids = categories[selected_major_id]['children']
-                    minor_categories = {cat_id: categories[cat_id] for cat_id in minor_cat_ids}
+                    # 선택한 카테고리 ID와 이름 추출
+                    selected_cat_id = selected_minor[0]
+                    selected_cat_name = selected_minor[1]
+                else:
+                    # 중분류가 없으면 대분류 사용
+                    selected_cat_id = selected_major_id
+                    selected_cat_name = selected_major[1]
+                    st.info("중분류가 없어 대분류를 사용합니다.")
 
-                    if minor_categories:
-                        minor_options = [f"[{cat_id}] {info['name']}" for cat_id, info in sorted(minor_categories.items())]
-                        selected_minor = st.selectbox(
-                            f"중분류 선택 (총 {len(minor_categories)}개)",
-                            minor_options
-                        )
-
-                        # 선택한 카테고리 ID와 이름 추출
-                        selected_cat_id = selected_minor.split(']')[0][1:]
-                        selected_cat_name = selected_minor.split('] ')[1]
-                    else:
-                        # 중분류가 없으면 대분류 사용
-                        selected_cat_id = selected_major_id
-                        selected_cat_name = selected_major[1]
-                        st.info("중분류가 없어 대분류를 사용합니다.")
-
-        # 즐겨찾기 선택 초기화 버튼 (즐겨찾기로 선택한 경우에만 표시)
-        if 'selected_category' in st.session_state:
-            if st.button("🔄 카테고리 다시 선택하기"):
-                del st.session_state.selected_category
-                st.rerun()
-
-        # 카테고리가 선택된 경우에만 크롤링 옵션 표시
-        if selected_cat_id:
+            # 크롤링 옵션
             max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
 
             if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
                 with st.spinner(f"'{selected_cat_name}' 신간도서 검색 중..."):
                     # 신간도서 가져오기
-                    url = build_attention_url(selected_cat_id)
+                    url = build_newly_published_url(selected_cat_id)
                     goods_dict = get_goods_no(url, max_products=max_products)
 
                     if not goods_dict:

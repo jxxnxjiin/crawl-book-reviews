@@ -38,7 +38,7 @@ def get_categories(category_number="001", use_cache=True, cache_file="categories
 
     # 웹에서 카테고리 정보 가져오기
     print(f"웹에서 카테고리 정보 가져오는 중...")
-    url = f"https://www.yes24.com/product/category/attentionnewproduct?categoryNumber={category_number}"
+    url = f"https://www.yes24.com/product/category/newproduct?categoryNumber={category_number}"
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
@@ -122,7 +122,7 @@ def print_category_tree(categories):
 
 def build_new_product_url(category_number):
     """신간도서 URL 생성"""
-    return f"https://www.yes24.com/product/category/attentionnewproduct?categoryNumber={category_number}"
+    return f"https://www.yes24.com/product/category/newproduct?categoryNumber={category_number}"
 
 
 if __name__ == "__main__":
