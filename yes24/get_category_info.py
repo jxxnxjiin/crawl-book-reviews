@@ -26,12 +26,16 @@ def get_categories(category_number="001", use_cache=True, cache_file="categories
     """
     cache_path = Path(cache_file)
 
+    # 절대 경로가 아니면 현재 스크립트 디렉토리 기준으로 변경
+    if not cache_path.is_absolute():
+        cache_path = Path(__file__).parent / cache_file
+
     # 캐시 파일이 있으면 로드
     if use_cache and cache_path.exists():
         try:
             with open(cache_path, 'r', encoding='utf-8') as f:
                 categories = json.load(f)
-                print(f"✓ 캐시 파일에서 {len(categories)}개 카테고리 로드: {cache_file}")
+                print(f"✓ 캐시 파일에서 {len(categories)}개 카테고리 로드: {cache_path}")
                 return categories
         except Exception as e:
             print(f"⚠ 캐시 파일 로드 실패: {e}")
