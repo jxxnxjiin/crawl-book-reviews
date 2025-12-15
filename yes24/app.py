@@ -16,6 +16,7 @@ from get_reviews import get_reviews
 from get_books_info import get_book_info
 from get_category_info import get_categories
 from utils import build_newly_published_url
+from pathlib import Path
 
 
 # 페이지 설정
@@ -226,13 +227,18 @@ elif pipeline.startswith("📙"):
     st.header("📚 카테고리 신간 → 세부정보 추출")
 
     # 카테고리 로드 (매번 캐시 파일에서 읽기)
-    categories = get_categories("001")
+    cache_path = Path(__file__).parent / "categories_cache.json"
+    categories = get_categories("001", cache_file=str(cache_path))
+
+    # 디버깅 정보
+    st.info(f"🔍 총 {len(categories)}개 카테고리 로드됨 (파일: {cache_path})")
 
     if not categories:
         st.error("❌ 카테고리를 가져올 수 없습니다.")
     else:
         # 대분류 (depth=1) 추출
         major_categories = {cat_id: info for cat_id, info in categories.items() if info['depth'] == 1}
+        st.info(f"📊 대분류: {len(major_categories)}개 - {list(major_categories.keys())}")
 
         # 대분류 선택
         major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
