@@ -14,7 +14,7 @@ from search_products import search_products
 from get_goods_no import get_goods_no
 from get_reviews import get_reviews
 from get_books_info import get_book_info
-from get_category_info import get_flat_categories
+from get_category_info import get_categories
 from utils import build_attention_url
 
 
@@ -228,29 +228,50 @@ elif pipeline.startswith("📙"):
     # 카테고리 로드
     if 'categories' not in st.session_state:
         with st.spinner("카테고리 목록을 가져오는 중..."):
-            st.session_state.categories = get_flat_categories("001")
+            st.session_state.categories = get_categories("001")
 
     categories = st.session_state.categories
 
     if not categories:
         st.error("❌ 카테고리를 가져올 수 없습니다.")
     else:
+        # 대분류 (depth=1) 추출
+        major_categories = {cat_id: info for cat_id, info in categories.items() if info['depth'] == 1}
+
         col1, col2 = st.columns(2)
 
         with col1:
-            # 카테고리 선택
-            category_options = [f"[{cat_id}] {cat_name}" for cat_id, cat_name in categories.items()]
-            selected_category = st.selectbox(
-                f"카테고리 선택 (총 {len(categories)}개)",
-                category_options
+            # 대분류 선택
+            major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
+            selected_major = st.radio(
+                "대분류 선택",
+                major_options,
+                format_func=lambda x: f"{x[1]} ({x[0]})"
             )
-
-            # 선택한 카테고리 ID와 이름 추출
-            selected_cat_id = selected_category.split(']')[0][1:]
-            selected_cat_name = selected_category.split('] ')[1]
+            selected_major_id = selected_major[0]
 
         with col2:
-            max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
+            # 중분류 (선택한 대분류의 자식) 추출
+            minor_categories = {cat_id: info for cat_id, info in categories.items()
+                              if info['depth'] == 2 and info.get('parent') == selected_major_id}
+
+            if minor_categories:
+                minor_options = [f"[{cat_id}] {info['name']}" for cat_id, info in sorted(minor_categories.items())]
+                selected_minor = st.selectbox(
+                    f"중분류 선택 (총 {len(minor_categories)}개)",
+                    minor_options
+                )
+
+                # 선택한 카테고리 ID와 이름 추출
+                selected_cat_id = selected_minor.split(']')[0][1:]
+                selected_cat_name = selected_minor.split('] ')[1]
+            else:
+                # 중분류가 없으면 대분류 사용
+                selected_cat_id = selected_major_id
+                selected_cat_name = selected_major[1]
+                st.info("중분류가 없어 대분류를 사용합니다.")
+
+        max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
 
         if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
             with st.spinner(f"'{selected_cat_name}' 신간도서 검색 중..."):
