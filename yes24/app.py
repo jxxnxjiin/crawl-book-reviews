@@ -228,15 +228,11 @@ elif pipeline.startswith("📙"):
     # 카테고리 로드 (매번 캐시 파일에서 읽기)
     categories = get_categories("001")
 
-    # 디버깅 정보
-    st.info(f"🔍 총 {len(categories)}개 카테고리 로드됨")
-
     if not categories:
         st.error("❌ 카테고리를 가져올 수 없습니다.")
     else:
         # 대분류 (depth=1) 추출
         major_categories = {cat_id: info for cat_id, info in categories.items() if info['depth'] == 1}
-        st.info(f"📊 대분류: {len(major_categories)}개 - {list(major_categories.keys())}")
 
         # 대분류 선택
         major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
