@@ -100,7 +100,8 @@ if pipeline.startswith("1."):
                         reviews = get_reviews(
                             title=title,
                             goods_no=goods_no,
-                            max_reviews=max_reviews
+                            max_reviews=max_reviews,
+                            verbose=False
                         )
 
                         # 상품 정보 추가
