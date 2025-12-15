@@ -227,15 +227,9 @@ elif pipeline.startswith("📙"):
 
     # 카테고리 로드 (JSON 파일 직접 읽기)
     cache_file = Path(__file__).parent / "categories_cache.json"
-    st.warning(f"🔍 DEBUG: 파일 경로 = {cache_file}")
-    st.warning(f"🔍 DEBUG: 파일 존재? = {cache_file.exists()}")
-
     try:
         with open(cache_file, 'r', encoding='utf-8') as f:
             categories = json.load(f)
-        st.warning(f"🔍 DEBUG: 로드된 카테고리 수 = {len(categories)}")
-        depth1 = {k: v for k, v in categories.items() if v['depth'] == 1}
-        st.warning(f"🔍 DEBUG: 대분류 = {list(depth1.keys())}")
     except Exception as e:
         st.error(f"❌ 카테고리 파일 읽기 실패: {e}")
         categories = {}
