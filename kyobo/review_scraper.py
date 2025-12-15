@@ -4,14 +4,7 @@ API를 통해 리뷰 데이터 수집
 """
 
 import requests
-import re
-
-
-def sanitize_filename(filename):
-    """파일명에 사용할 수 없는 문자 제거"""
-    filename = re.sub(r'[<>:"/\\|?*]', '', filename)
-    filename = filename.replace(' ', '_')
-    return filename
+from utils import sanitize_filename
 
 
 def build_review_api_url(goods_no, page=1, page_limit=10):

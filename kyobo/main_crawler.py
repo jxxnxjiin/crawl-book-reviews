@@ -6,7 +6,8 @@
 """
 
 from product_search import get_goods_no, ORDER_OPTIONS
-from review_scraper import get_kyobo_reviews, sanitize_filename
+from review_scraper import get_kyobo_reviews
+from utils import sanitize_filename, select_option
 import pandas as pd
 import os
 import sys
@@ -138,19 +139,6 @@ def crawl_all_reviews(goods_dict, output_dir="./results", max_reviews_per_book=1
     return results_summary
 
 
-def select_option(options, prompt):
-    """사용자에게 옵션 선택 받기"""
-    print(f"\n{prompt}")
-    for key, (_, name) in options.items():
-        print(f"  {key}. {name}")
-    
-    while True:
-        choice = input("\n선택 (번호 입력): ").strip()
-        if choice in options:
-            return options[choice][0]
-        print("잘못된 입력입니다. 다시 선택해주세요.")
-
-
 def main_interactive():
     """인터랙티브 모드로 실행"""
     print("=" * 50)
@@ -238,4 +226,3 @@ if __name__ == "__main__":
     else:
         # 인자 있으면 CLI 모드
         main_cli()
-

@@ -1,3 +1,12 @@
 results/
 __pycache__/
 clean_cache.py
+*.pyc
+*.pyo
+*.egg-info/
+.DS_Store
+.vscode/
+.idea/
+*.csv
+venv/
+env/
