@@ -1,24 +1,9 @@
-"""
-예스24 리뷰 크롤러 모듈
-requests + BeautifulSoup으로 리뷰 데이터 수집
-"""
-
 import requests
 from bs4 import BeautifulSoup
 import re
+from utils import HEADERS, build_review_url
 
-
-def sanitize_filename(filename):
-    """파일명에 사용할 수 없는 문자 제거"""
-    filename = re.sub(r'[<>:"/\\|?*]', '', filename)
-    filename = filename.replace(' ', '_')
-    return filename
-
-
-def build_review_url(goods_no, page=1, sort=1):
-    """리뷰 URL 생성"""
-    return f"https://www.yes24.com/Product/communityModules/GoodsReviewList/{goods_no}?goodsSetYn=N&Sort={sort}&PageNumber={page}&Type=ALL"
-
+### 
 
 def parse_reviews_from_html(soup):
     """HTML에서 리뷰 데이터 추출"""
@@ -56,7 +41,6 @@ def parse_reviews_from_html(soup):
     
     return reviews
 
-
 def get_max_page(soup):
     """최대 페이지 번호 추출"""
     page_nums = soup.select(".yesUI_pagenS .num")
@@ -69,8 +53,7 @@ def get_max_page(soup):
         return max_page
     return 1
 
-
-def get_yes24_reviews(title, goods_no, max_reviews=10):
+def get_reviews(title, goods_no, max_reviews=10):
     """
     예스24 상품 리뷰 크롤링
     
@@ -78,16 +61,12 @@ def get_yes24_reviews(title, goods_no, max_reviews=10):
     goods_no: 상품 번호
     max_reviews: 최대 수집할 리뷰 수 (기본값: 10, None이면 전체 수집)
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    }
-    
     all_reviews = []
     
     try:
         # 첫 페이지 요청
         url = build_review_url(goods_no, page=1)
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=HEADERS)
         soup = BeautifulSoup(response.content, 'html.parser')
         
         # 최대 페이지 확인
@@ -108,7 +87,7 @@ def get_yes24_reviews(title, goods_no, max_reviews=10):
             # 2페이지부터 순회
             for page in range(2, max_page + 1):
                 url = build_review_url(goods_no, page=page)
-                response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=HEADERS)
                 soup = BeautifulSoup(response.content, 'html.parser')
                 
                 reviews = parse_reviews_from_html(soup)
