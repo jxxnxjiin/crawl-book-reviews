@@ -238,92 +238,96 @@ elif pipeline.startswith("📙"):
         # 대분류 (depth=1) 추출
         major_categories = {cat_id: info for cat_id, info in categories.items() if info['depth'] == 1}
 
-        col1, col2 = st.columns(2)
+        # 대분류 선택
+        major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
+        if not major_options:
+            st.error("❌ 대분류를 찾을 수 없습니다.")
+        else:
+            col1, col2 = st.columns(2)
 
-        with col1:
-            # 대분류 선택
-            major_options = [(cat_id, info['name']) for cat_id, info in sorted(major_categories.items())]
-            selected_major = st.radio(
-                "대분류 선택",
-                major_options,
-                format_func=lambda x: f"{x[1]} ({x[0]})"
-            )
-            selected_major_id = selected_major[0]
-
-        with col2:
-            # 중분류 (선택한 대분류의 직계 자식) 추출
-            minor_cat_ids = categories[selected_major_id]['children']
-            minor_categories = {cat_id: categories[cat_id] for cat_id in minor_cat_ids}
-
-            if minor_categories:
-                minor_options = [f"[{cat_id}] {info['name']}" for cat_id, info in sorted(minor_categories.items())]
-                selected_minor = st.selectbox(
-                    f"중분류 선택 (총 {len(minor_categories)}개)",
-                    minor_options
+            with col1:
+                selected_major = st.radio(
+                    "대분류 선택",
+                    major_options,
+                    format_func=lambda x: f"{x[1]} ({x[0]})",
+                    index=0
                 )
+                selected_major_id = selected_major[0]
 
-                # 선택한 카테고리 ID와 이름 추출
-                selected_cat_id = selected_minor.split(']')[0][1:]
-                selected_cat_name = selected_minor.split('] ')[1]
-            else:
-                # 중분류가 없으면 대분류 사용
-                selected_cat_id = selected_major_id
-                selected_cat_name = selected_major[1]
-                st.info("중분류가 없어 대분류를 사용합니다.")
+            with col2:
+                # 중분류 (선택한 대분류의 직계 자식) 추출
+                minor_cat_ids = categories[selected_major_id]['children']
+                minor_categories = {cat_id: categories[cat_id] for cat_id in minor_cat_ids}
 
-        max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
+                if minor_categories:
+                    minor_options = [f"[{cat_id}] {info['name']}" for cat_id, info in sorted(minor_categories.items())]
+                    selected_minor = st.selectbox(
+                        f"중분류 선택 (총 {len(minor_categories)}개)",
+                        minor_options
+                    )
 
-        if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
-            with st.spinner(f"'{selected_cat_name}' 신간도서 검색 중..."):
-                # 신간도서 가져오기
-                url = build_attention_url(selected_cat_id)
-                goods_dict = get_goods_no(url, max_products=max_products)
-
-                if not goods_dict:
-                    st.error("❌ 신간도서를 찾을 수 없습니다.")
+                    # 선택한 카테고리 ID와 이름 추출
+                    selected_cat_id = selected_minor.split(']')[0][1:]
+                    selected_cat_name = selected_minor.split('] ')[1]
                 else:
-                    st.success(f"✓ {len(goods_dict)}개의 신간도서를 찾았습니다!")
+                    # 중분류가 없으면 대분류 사용
+                    selected_cat_id = selected_major_id
+                    selected_cat_name = selected_major[1]
+                    st.info("중분류가 없어 대분류를 사용합니다.")
 
-                    # 진행 상황 표시
-                    progress_bar = st.progress(0)
-                    status_text = st.empty()
+            max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
 
-                    all_books_info = []
-                    total_items = len(goods_dict)
+            if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
+                with st.spinner(f"'{selected_cat_name}' 신간도서 검색 중..."):
+                    # 신간도서 가져오기
+                    url = build_attention_url(selected_cat_id)
+                    goods_dict = get_goods_no(url, max_products=max_products)
 
-                    for idx, (title, goods_no) in enumerate(goods_dict.items(), 1):
-                        status_text.text(f"[{idx}/{total_items}] {title[:50]}... 세부정보 추출 중")
-
-                        info = get_book_info(goods_no)
-                        info['category_id'] = selected_cat_id
-                        info['category_name'] = selected_cat_name
-                        all_books_info.append(info)
-
-                        progress_bar.progress(idx / total_items)
-                        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
-
-                    status_text.empty()
-                    progress_bar.empty()
-
-                    if all_books_info:
-                        st.success(f"📊 총 {len(all_books_info)}개의 도서 정보를 추출했습니다!")
-
-                        # 데이터프레임 표시
-                        df = pd.DataFrame(all_books_info)
-                        st.dataframe(df, use_container_width=True)
-
-                        # CSV 다운로드
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        csv = df.to_csv(index=False, encoding='utf-8-sig')
-                        st.download_button(
-                            label="📥 CSV 다운로드",
-                            data=csv,
-                            file_name=f"category_books_{selected_cat_id}_{timestamp}.csv",
-                            mime="text/csv",
-                            use_container_width=True
-                        )
+                    if not goods_dict:
+                        st.error("❌ 신간도서를 찾을 수 없습니다.")
                     else:
-                        st.warning("⚠️ 수집된 도서 정보가 없습니다.")
+                        st.success(f"✓ {len(goods_dict)}개의 신간도서를 찾았습니다!")
+
+                        # 진행 상황 표시
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+
+                        all_books_info = []
+                        total_items = len(goods_dict)
+
+                        for idx, (title, goods_no) in enumerate(goods_dict.items(), 1):
+                            status_text.text(f"[{idx}/{total_items}] {title[:50]}... 세부정보 추출 중")
+
+                            info = get_book_info(goods_no)
+                            info['category_id'] = selected_cat_id
+                            info['category_name'] = selected_cat_name
+                            all_books_info.append(info)
+
+                            progress_bar.progress(idx / total_items)
+                            time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
+
+                        status_text.empty()
+                        progress_bar.empty()
+
+                        if all_books_info:
+                            st.success(f"📊 총 {len(all_books_info)}개의 도서 정보를 추출했습니다!")
+
+                            # 데이터프레임 표시
+                            df = pd.DataFrame(all_books_info)
+                            st.dataframe(df, use_container_width=True)
+
+                            # CSV 다운로드
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                            csv = df.to_csv(index=False, encoding='utf-8-sig')
+                            st.download_button(
+                                label="📥 CSV 다운로드",
+                                data=csv,
+                                file_name=f"category_books_{selected_cat_id}_{timestamp}.csv",
+                                mime="text/csv",
+                                use_container_width=True
+                            )
+                        else:
+                            st.warning("⚠️ 수집된 도서 정보가 없습니다.")
 
 
 # Footer
