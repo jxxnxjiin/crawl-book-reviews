@@ -61,8 +61,16 @@ def get_categories(category_number="001"):
     # 부모-자식 관계 설정
     for cat_id, info in categories.items():
         parent_id = info.get("parent")
-        if parent_id and parent_id in categories:
-            categories[parent_id]["children"].append(cat_id)
+        # parent_id가 존재하지 않으면 첫 3자리를 parent로 시도
+        if parent_id:
+            if parent_id in categories:
+                categories[parent_id]["children"].append(cat_id)
+            else:
+                # 첫 3자리를 parent로 시도 (001001001 -> 001)
+                root_parent = cat_id[:3]
+                if root_parent in categories:
+                    categories[root_parent]["children"].append(cat_id)
+                    info["parent"] = root_parent
     
     return categories
 

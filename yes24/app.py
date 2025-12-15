@@ -251,9 +251,9 @@ elif pipeline.startswith("📙"):
             selected_major_id = selected_major[0]
 
         with col2:
-            # 중분류 (선택한 대분류의 자식) 추출
-            minor_categories = {cat_id: info for cat_id, info in categories.items()
-                              if info['depth'] == 2 and info.get('parent') == selected_major_id}
+            # 중분류 (선택한 대분류의 직계 자식) 추출
+            minor_cat_ids = categories[selected_major_id]['children']
+            minor_categories = {cat_id: categories[cat_id] for cat_id in minor_cat_ids}
 
             if minor_categories:
                 minor_options = [f"[{cat_id}] {info['name']}" for cat_id, info in sorted(minor_categories.items())]
