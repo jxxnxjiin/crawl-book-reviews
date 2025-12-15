@@ -9,6 +9,7 @@ Yes24 Crawler Main Script
 """
 
 import csv
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -98,6 +99,7 @@ def pipeline_search_reviews():
             all_reviews.append(review)
 
         print(f"  ✓ {len(reviews)}개의 리뷰 수집 완료\n")
+        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
 
     print(f"\n📊 총 {len(all_reviews)}개의 리뷰를 수집했습니다.")
 
@@ -148,6 +150,7 @@ def pipeline_search_bookinfo():
         all_books_info.append(info)
 
         print(f"  ✓ 추출 완료\n")
+        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
 
     print(f"\n📊 총 {len(all_books_info)}개의 도서 정보를 추출했습니다.")
 
@@ -227,6 +230,7 @@ def pipeline_category_bookinfo():
         all_books_info.append(info)
 
         print(f"  ✓ 추출 완료\n")
+        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
 
     print(f"\n📊 총 {len(all_books_info)}개의 도서 정보를 추출했습니다.")
 

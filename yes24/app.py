@@ -6,6 +6,7 @@ Yes24 Crawler Streamlit Web App
 
 import streamlit as st
 import pandas as pd
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -109,6 +110,7 @@ if pipeline.startswith("1."):
                             all_reviews.append(review)
 
                         progress_bar.progress(idx / total_items)
+                        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
 
                     status_text.empty()
                     progress_bar.empty()
@@ -192,6 +194,7 @@ elif pipeline.startswith("2."):
                         all_books_info.append(info)
 
                         progress_bar.progress(idx / total_items)
+                        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
 
                     status_text.empty()
                     progress_bar.empty()
@@ -275,6 +278,7 @@ elif pipeline.startswith("3."):
                         all_books_info.append(info)
 
                         progress_bar.progress(idx / total_items)
+                        time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
 
                     status_text.empty()
                     progress_bar.empty()

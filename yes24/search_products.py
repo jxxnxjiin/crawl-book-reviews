@@ -4,6 +4,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+import time
 
 
 # 정렬 옵션
@@ -90,8 +91,9 @@ def search_products(query, size=24, order='RELATION', max_products=None):
         next_btn = soup.select_one(".yesUI_pagen .next:not(.dim)")
         if not next_btn:
             break
-        
+
         page += 1
+        time.sleep(0.5)  # 0.5초 대기 (차단 방지)
     
     return all_goods
 

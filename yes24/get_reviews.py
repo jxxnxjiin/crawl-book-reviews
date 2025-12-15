@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import time
 from utils import HEADERS, build_review_url
 
 ### 
@@ -86,10 +87,11 @@ def get_reviews(title, goods_no, max_reviews=10):
         else:
             # 2페이지부터 순회
             for page in range(2, max_page + 1):
+                time.sleep(0.5)  # 0.5초 대기 (차단 방지)
                 url = build_review_url(goods_no, page=page)
                 response = requests.get(url, headers=HEADERS)
                 soup = BeautifulSoup(response.content, 'html.parser')
-                
+
                 reviews = parse_reviews_from_html(soup)
                 all_reviews.extend(reviews)
                 print(f"페이지 {page}: {len(reviews)}개 리뷰 수집")
