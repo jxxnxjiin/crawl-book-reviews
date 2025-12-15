@@ -7,6 +7,7 @@ Yes24 Crawler Streamlit Web App
 import streamlit as st
 import pandas as pd
 import time
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -14,7 +15,6 @@ from search_products import search_products
 from get_goods_no import get_goods_no
 from get_reviews import get_reviews
 from get_books_info import get_book_info
-from get_category_info import get_categories
 from utils import build_newly_published_url
 
 
@@ -225,8 +225,14 @@ elif pipeline.startswith("📗"):
 elif pipeline.startswith("📙"):
     st.header("📚 카테고리 신간 → 세부정보 추출")
 
-    # 카테고리 로드 (매번 캐시 파일에서 읽기)
-    categories = get_categories("001")
+    # 카테고리 로드 (JSON 파일 직접 읽기)
+    cache_file = Path(__file__).parent / "categories_cache.json"
+    try:
+        with open(cache_file, 'r', encoding='utf-8') as f:
+            categories = json.load(f)
+    except Exception as e:
+        st.error(f"❌ 카테고리 파일 읽기 실패: {e}")
+        categories = {}
 
     if not categories:
         st.error("❌ 카테고리를 가져올 수 없습니다.")
