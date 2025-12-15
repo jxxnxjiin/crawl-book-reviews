@@ -46,15 +46,31 @@ st.sidebar.markdown("---")
 if pipeline.startswith("1."):
     st.header("🔍 키워드 검색 → 리뷰 크롤링")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
         keyword = st.text_input("검색 키워드", placeholder="예: 파이썬")
 
     with col2:
-        max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
+        order_option = st.selectbox(
+            "정렬 방식",
+            [
+                ("RELATION", "정확도순"),
+                ("RECENT", "신상품순"),
+                ("SINDEX_ONLY", "인기도순"),
+                ("REG_DTS", "등록일순"),
+                ("CONT_CNT", "평점순"),
+                ("REVIE_CNT", "리뷰순")
+            ],
+            format_func=lambda x: x[1]
+        )
+
+    col3, col4 = st.columns(2)
 
     with col3:
+        max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
+
+    with col4:
         max_reviews = st.number_input("상품당 최대 리뷰 수", min_value=1, max_value=100, value=10)
 
     if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
@@ -63,7 +79,7 @@ if pipeline.startswith("1."):
         else:
             with st.spinner(f"'{keyword}' 검색 중..."):
                 # 상품 검색
-                goods_dict = search_products(keyword, size=40, order='RELATION', max_products=max_products)
+                goods_dict = search_products(keyword, size=40, order=order_option[0], max_products=max_products)
 
                 if not goods_dict:
                     st.error("❌ 검색 결과가 없습니다.")
@@ -128,7 +144,26 @@ elif pipeline.startswith("2."):
         keyword = st.text_input("검색 키워드", placeholder="예: 파이썬")
 
     with col2:
+        order_option = st.selectbox(
+            "정렬 방식",
+            [
+                ("RELATION", "정확도순"),
+                ("RECENT", "신상품순"),
+                ("SINDEX_ONLY", "인기도순"),
+                ("REG_DTS", "등록일순"),
+                ("CONT_CNT", "평점순"),
+                ("REVIE_CNT", "리뷰순")
+            ],
+            format_func=lambda x: x[1]
+        )
+
+    col3, col4 = st.columns(2)
+
+    with col3:
         max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
+
+    with col4:
+        st.write("")  # 레이아웃 균형을 위한 빈 공간
 
     if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
         if not keyword:
@@ -136,7 +171,7 @@ elif pipeline.startswith("2."):
         else:
             with st.spinner(f"'{keyword}' 검색 중..."):
                 # 상품 검색
-                goods_dict = search_products(keyword, size=40, order='RELATION', max_products=max_products)
+                goods_dict = search_products(keyword, size=40, order=order_option[0], max_products=max_products)
 
                 if not goods_dict:
                     st.error("❌ 검색 결과가 없습니다.")
