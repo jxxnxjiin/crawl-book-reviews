@@ -225,6 +225,13 @@ elif pipeline.startswith("📗"):
 elif pipeline.startswith("📙"):
     st.header("🔍 카테고리 신간 → 세부정보 추출")
 
+    # 사이드바에 캐시 새로고침 버튼 추가
+    if st.sidebar.button("🔄 카테고리 캐시 새로고침"):
+        with st.spinner("웹에서 카테고리 정보를 새로 가져오는 중..."):
+            st.session_state.categories = get_categories("001", use_cache=False)
+        st.sidebar.success("✓ 캐시 새로고침 완료!")
+        st.rerun()
+
     # 카테고리 로드
     if 'categories' not in st.session_state:
         with st.spinner("카테고리 목록을 가져오는 중..."):

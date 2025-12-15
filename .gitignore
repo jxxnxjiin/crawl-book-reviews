@@ -10,3 +10,4 @@ clean_cache.py
 *.csv
 venv/
 env/
+categories_cache.json
