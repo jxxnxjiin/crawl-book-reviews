@@ -225,11 +225,8 @@ elif pipeline.startswith("📗"):
 elif pipeline.startswith("📙"):
     st.header("📚 카테고리 신간 → 세부정보 추출")
 
-    # 카테고리 로드 (캐시 파일만 사용)
-    if 'categories' not in st.session_state:
-        st.session_state.categories = get_categories("001")
-
-    categories = st.session_state.categories
+    # 카테고리 로드 (매번 캐시 파일에서 읽기)
+    categories = get_categories("001")
 
     if not categories:
         st.error("❌ 카테고리를 가져올 수 없습니다.")
