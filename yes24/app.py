@@ -74,7 +74,7 @@ if pipeline.startswith("📕"):
     with col4:
         max_reviews = st.number_input("상품당 최대 리뷰 수", min_value=1, max_value=100, value=10)
 
-    if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
+    if st.button("🚀 크롤링 시작", type="primary", width='content'):
         if not keyword:
             st.error("❌ 검색 키워드를 입력해주세요!")
         else:
@@ -97,18 +97,22 @@ if pipeline.startswith("📕"):
                     for idx, (title, goods_no) in enumerate(goods_dict.items(), 1):
                         status_text.text(f"[{idx}/{total_items}] {title[:50]}... 리뷰 수집 중")
 
-                        reviews = get_reviews(
-                            title=title,
-                            goods_no=goods_no,
-                            max_reviews=max_reviews,
-                            verbose=False
-                        )
+                        try:
+                            reviews = get_reviews(
+                                title=title,
+                                goods_no=goods_no,
+                                max_reviews=max_reviews,
+                                verbose=False
+                            )
 
-                        # 상품 정보 추가
-                        for review in reviews:
-                            review['product_title'] = title
-                            review['goods_no'] = goods_no
-                            all_reviews.append(review)
+                            # 상품 정보 추가
+                            for review in reviews:
+                                review['product_title'] = title
+                                review['goods_no'] = goods_no
+                                all_reviews.append(review)
+                        except Exception as e:
+                            st.warning(f"⚠️ [{idx}] {title[:30]}... 리뷰 수집 실패: {str(e)[:50]}")
+                            # 실패해도 계속 진행
 
                         progress_bar.progress(idx / total_items)
                         time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
@@ -121,7 +125,7 @@ if pipeline.startswith("📕"):
 
                         # 데이터프레임 표시
                         df = pd.DataFrame(all_reviews)
-                        st.dataframe(df, use_container_width=True)
+                        st.dataframe(df, width='stretch')
 
                         # CSV 다운로드
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -131,7 +135,7 @@ if pipeline.startswith("📕"):
                             data=csv,
                             file_name=f"search_reviews_{keyword}_{timestamp}.csv",
                             mime="text/csv",
-                            use_container_width=True
+                            width='stretch'
                         )
                     else:
                         st.warning("⚠️ 수집된 리뷰가 없습니다.")
@@ -168,7 +172,7 @@ elif pipeline.startswith("📗"):
     with col4:
         st.write("")  # 레이아웃 균형을 위한 빈 공간
 
-    if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
+    if st.button("🚀 크롤링 시작", type="primary", width='stretch'):
         if not keyword:
             st.error("❌ 검색 키워드를 입력해주세요!")
         else:
@@ -191,8 +195,12 @@ elif pipeline.startswith("📗"):
                     for idx, (title, goods_no) in enumerate(goods_dict.items(), 1):
                         status_text.text(f"[{idx}/{total_items}] {title[:50]}... 세부정보 추출 중")
 
-                        info = get_book_info(goods_no)
-                        all_books_info.append(info)
+                        try:
+                            info = get_book_info(goods_no)
+                            all_books_info.append(info)
+                        except Exception as e:
+                            st.warning(f"⚠️ [{idx}] {title[:30]}... 추출 실패: {str(e)[:50]}")
+                            # 실패해도 계속 진행
 
                         progress_bar.progress(idx / total_items)
                         time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
@@ -205,7 +213,7 @@ elif pipeline.startswith("📗"):
 
                         # 데이터프레임 표시
                         df = pd.DataFrame(all_books_info)
-                        st.dataframe(df, use_container_width=True)
+                        st.dataframe(df, width='stretch')
 
                         # CSV 다운로드
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -215,7 +223,7 @@ elif pipeline.startswith("📗"):
                             data=csv,
                             file_name=f"search_books_{keyword}_{timestamp}.csv",
                             mime="text/csv",
-                            use_container_width=True
+                            width='stretch'
                         )
                     else:
                         st.warning("⚠️ 수집된 도서 정보가 없습니다.")
@@ -281,7 +289,7 @@ elif pipeline.startswith("📙"):
             # 크롤링 옵션
             max_products = st.number_input("최대 상품 수", min_value=1, max_value=100, value=10)
 
-            if st.button("🚀 크롤링 시작", type="primary", use_container_width=True):
+            if st.button("🚀 크롤링 시작", type="primary", width='stretch'):
                 with st.spinner(f"'{selected_cat_name}' 신간도서 검색 중..."):
                     # 신간도서 가져오기
                     url = build_newly_published_url(selected_cat_id)
@@ -302,10 +310,14 @@ elif pipeline.startswith("📙"):
                         for idx, (title, goods_no) in enumerate(goods_dict.items(), 1):
                             status_text.text(f"[{idx}/{total_items}] {title[:50]}... 세부정보 추출 중")
 
-                            info = get_book_info(goods_no)
-                            info['category_id'] = selected_cat_id
-                            info['category_name'] = selected_cat_name
-                            all_books_info.append(info)
+                            try:
+                                info = get_book_info(goods_no)
+                                info['category_id'] = selected_cat_id
+                                info['category_name'] = selected_cat_name
+                                all_books_info.append(info)
+                            except Exception as e:
+                                st.warning(f"⚠️ [{idx}] {title[:30]}... 추출 실패: {str(e)[:50]}")
+                                # 실패해도 계속 진행
 
                             progress_bar.progress(idx / total_items)
                             time.sleep(0.3)  # 각 상품 처리 후 대기 (차단 방지)
@@ -318,7 +330,7 @@ elif pipeline.startswith("📙"):
 
                             # 데이터프레임 표시
                             df = pd.DataFrame(all_books_info)
-                            st.dataframe(df, use_container_width=True)
+                            st.dataframe(df, width='stretch')
 
                             # CSV 다운로드
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -328,7 +340,7 @@ elif pipeline.startswith("📙"):
                                 data=csv,
                                 file_name=f"category_books_{selected_cat_id}_{timestamp}.csv",
                                 mime="text/csv",
-                                use_container_width=True
+                                width='stretch'
                             )
                         else:
                             st.warning("⚠️ 수집된 도서 정보가 없습니다.")

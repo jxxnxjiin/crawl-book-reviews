@@ -47,7 +47,7 @@ def get_categories(category_number="001", use_cache=True, cache_file="categories
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
 
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=10)
     soup = BeautifulSoup(response.content, 'html.parser')
 
     categories = {}

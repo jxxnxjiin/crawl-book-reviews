@@ -84,7 +84,7 @@ def get_reviews(title, goods_no, max_reviews=10, verbose=True):
     try:
         # 첫 페이지 요청
         url = build_review_url(goods_no, page=1)
-        response = requests.get(url, headers=HEADERS)
+        response = requests.get(url, headers=HEADERS, timeout=10)
         soup = BeautifulSoup(response.content, 'html.parser')
 
         # 최대 페이지 확인
@@ -109,7 +109,7 @@ def get_reviews(title, goods_no, max_reviews=10, verbose=True):
             for page in range(2, max_page + 1):
                 time.sleep(0.5)  # 0.5초 대기 (차단 방지)
                 url = build_review_url(goods_no, page=page)
-                response = requests.get(url, headers=HEADERS)
+                response = requests.get(url, headers=HEADERS, timeout=10)
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 reviews = parse_reviews_from_html(soup)

@@ -28,7 +28,7 @@ def _get_session():
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
     })
     # 쿠키 획득을 위해 메인 페이지 먼저 방문
-    session.get('https://www.yes24.com')
+    session.get('https://www.yes24.com', timeout=10)
     return session
 
 
@@ -67,7 +67,7 @@ def search_products(query, size=24, order='RELATION', max_products=None):
     
     while True:
         url = build_search_url(query, page=page, size=size, order=order)
-        response = session.get(url)
+        response = session.get(url, timeout=10)
         soup = BeautifulSoup(response.content, 'html.parser')
         
         goods_dict = _parse_products_from_soup(soup)

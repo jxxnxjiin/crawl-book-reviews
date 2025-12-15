@@ -21,7 +21,7 @@ def get_book_info(goods_no):
     """
     url = build_book_url(goods_no)
 
-    response = requests.get(url, headers=HEADERS)
+    response = requests.get(url, headers=HEADERS, timeout=10)
     soup = BeautifulSoup(response.content, 'html.parser')
 
     info = {'goods_no': goods_no}
