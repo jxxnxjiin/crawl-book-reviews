@@ -142,7 +142,7 @@ def render_search_results_selection(search_results, session_key_prefix):
         df["선택"] = True
 
     # 3. 데이터 에디터(수정 가능한 테이블) 표시
-    st.markdown("### ✋ 아래 목록에서 크롤링할 책을 체크하세요")
+    st.markdown("### ✋ 아래 목록에서 책을 선택하세요")
     
     edited_df = st.data_editor(
         df,
