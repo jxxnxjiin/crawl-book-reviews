@@ -9,4 +9,4 @@ pip install -r requirements.txt
 ```
 
 ## Streamlit Web App
-https://crawl-book-reviews-chvha9yzgtu96d6en8af3c.streamlit.app/
+https://crawl-book-reviews.streamlit.app/
