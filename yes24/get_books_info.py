@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from utils import HEADERS, build_book_url
+from .utils import HEADERS, build_book_url
 
 ### 세부 정보 추출 ###
 def get_book_info(goods_no):

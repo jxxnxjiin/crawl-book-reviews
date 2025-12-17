@@ -4,7 +4,13 @@ API를 통해 리뷰 데이터 수집
 """
 
 import requests
-from utils import sanitize_filename
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from common.http_utils import HEADERS
+from common.file_utils import sanitize_filename
 
 
 def build_review_api_url(goods_no, page=1, page_limit=10):
@@ -15,15 +21,11 @@ def build_review_api_url(goods_no, page=1, page_limit=10):
 def get_kyobo_reviews(title, goods_no, max_reviews=10):
     """
     교보문고 상품 리뷰 크롤링
-    
+
     title: 상품 제목
     goods_no: 상품 번호 (S로 시작)
     max_reviews: 최대 수집할 리뷰 수 (기본값: 10, None이면 전체 수집)
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-    }
-    
     all_reviews = []
     page = 1
     page_limit = 50  # 한 번에 최대 50개씩 요청
@@ -33,7 +35,7 @@ def get_kyobo_reviews(title, goods_no, max_reviews=10):
         
         while True:
             url = build_review_api_url(goods_no, page, page_limit)
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=HEADERS)
             data = response.json()
             
             if data.get('statusCode') != 200:

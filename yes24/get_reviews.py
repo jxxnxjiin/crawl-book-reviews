@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import time
-from utils import HEADERS, build_review_url
+from .utils import HEADERS, build_review_url
 
 ### 
 

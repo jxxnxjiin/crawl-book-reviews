@@ -5,7 +5,7 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-from utils import build_search_url
+from .utils import build_search_url
 
 
 # 정렬 옵션

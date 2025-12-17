@@ -20,7 +20,6 @@ from .utils import (
 from .get_goods_no import get_goods_no
 from .get_reviews import get_reviews
 from .get_books_info import get_book_info
-from .get_category_info import get_categories, get_flat_categories
 
 __all__ = [
     # Constants
@@ -37,8 +36,6 @@ __all__ = [
     'get_goods_no',
     'get_reviews',
     'get_book_info',
-    'get_categories',
-    'get_flat_categories',
 ]
 
 __version__ = '1.0.0'

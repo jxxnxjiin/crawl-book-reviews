@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import re
-from utils import HEADERS
+from .utils import HEADERS
 
 def _parse_products_from_soup(soup):
     """HTML에서 상품 목록 추출"""

@@ -5,9 +5,9 @@
 3. 개별 파일 또는 통합 파일로 저장
 """
 
-from product_search import get_goods_no, ORDER_OPTIONS
-from review_scraper import get_kyobo_reviews
-from utils import sanitize_filename, select_option
+from .product_search import get_goods_no, ORDER_OPTIONS
+from .review_scraper import get_kyobo_reviews
+from .utils import sanitize_filename, select_option
 import pandas as pd
 import os
 import sys
