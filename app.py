@@ -72,7 +72,7 @@ st.markdown("---")
 # ==============================================================================
 if crawler == "📕 Yes24":
     pipeline = st.pills(
-    "메뉴 선택",
+    "파이프라인 선택",
     [
             "📕 키워드 검색 → 리뷰 크롤링",
             "📗 키워드 검색 → 세부정보 크롤링",
@@ -80,17 +80,7 @@ if crawler == "📕 Yes24":
         ],
     selection_mode="single",
     default="📕 키워드 검색 → 리뷰 크롤링",
-    label_visibility="collapsed"  # "메뉴 선택" 라벨을 숨겨서 더 메뉴바처럼 보이게 함
-)
-    # pipeline = st.sidebar.radio(
-    #     "파이프라인 선택",
-    #     [
-    #         "📕 키워드 검색 → 리뷰 크롤링",
-    #         "📗 키워드 검색 → 세부정보 크롤링",
-    #         "📙 카테고리 신간 → 세부정보 추출"
-    #     ],
-    # )
-    # st.sidebar.markdown("---")
+    )
 
     # 크롤링 모드 선택 (모든 파이프라인 공통)
     crawl_mode = st.pills(
