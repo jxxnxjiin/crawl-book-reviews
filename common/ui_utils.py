@@ -104,48 +104,84 @@ def render_pipeline_result(result, filename_prefix, keyword=""):
 
 def render_search_results_selection(search_results, session_key_prefix):
     """
-    검색 결과를 표시하고 사용자 선택을 받는 UI
-
+    검색 결과를 체크박스가 포함된 데이터 테이블로 표시하고 선택된 항목 반환
+    
     Args:
         search_results: {제목: 상품번호} 딕셔너리
-        session_key_prefix: 세션 키 접두사 (예: 'yes24', 'kyobo')
-
+        session_key_prefix: 세션 키 접두사
+        
     Returns:
         dict: 선택된 {제목: 상품번호} 딕셔너리
     """
     st.markdown("---")
-    st.subheader(f"📋 검색 결과: '{st.session_state[f'{session_key_prefix}_search_keyword']}'")
+    st.subheader(f"📋 검색 결과: '{st.session_state.get(f'{session_key_prefix}_search_keyword', '')}'")
 
-    # 검색 결과를 데이터프레임으로 표시
-    df_results = pd.DataFrame([
-        {
-            "제목": title,
-            "상품번호": goods_no
-        }
-        for idx, (title, goods_no) in enumerate(search_results.items(), 1)
-    ])
+    if not search_results:
+        st.warning("표시할 검색 결과가 없습니다.")
+        return {}
 
-    st.dataframe(df_results, use_container_width=True, height=400)
+    # 1. 데이터프레임 생성 (기본적으로 '선택' 컬럼은 False)
+    # 딕셔너리를 리스트로 변환
+    data_list = [
+        {"선택": False, "제목": title, "상품번호": str(goods_no)} 
+        for title, goods_no in search_results.items()
+    ]
+    df = pd.DataFrame(data_list)
 
-    # 선택 UI
-    st.markdown("### ✋ 크롤링할 책 선택")
+    # 2. '전체 선택' 기능 추가 (옵션)
+    # 전체 선택용 키 생성
+    select_all_key = f"{session_key_prefix}_select_all"
+    
+    col_header, _ = st.columns([2, 8])
+    with col_header:
+        # 전체 선택 체크박스
+        select_all = st.checkbox("✅ 전체 선택/해제", key=select_all_key)
 
-    selected_titles = st.multiselect(
-        "크롤링할 책 선택 (여러 개 선택 가능)",
-        options=list(search_results.keys()),
-        format_func=lambda x: x[:80] + "..." if len(x) > 80 else x,
-        key=f"{session_key_prefix}_multiselect"
+    # 전체 선택이 켜져있으면 데이터의 '선택' 값을 모두 True로 설정
+    if select_all:
+        df["선택"] = True
+
+    # 3. 데이터 에디터(수정 가능한 테이블) 표시
+    st.markdown("### ✋ 아래 목록에서 크롤링할 책을 체크하세요")
+    
+    edited_df = st.data_editor(
+        df,
+        column_config={
+            "선택": st.column_config.CheckboxColumn(
+                "선택",
+                help="크롤링할 상품을 체크하세요",
+                default=False,
+                width="small"
+            ),
+            "제목": st.column_config.TextColumn(
+                "제목",
+                width="large",
+                disabled=True  # 제목은 수정 불가능하게 설정
+            ),
+            "상품번호": st.column_config.TextColumn(
+                "상품번호",
+                width="medium",
+                disabled=True  # 번호도 수정 불가능하게 설정
+            )
+        },
+        hide_index=True,          # 인덱스 숨김
+        use_container_width=True, # 가로폭 꽉 채우기
+        height=400,               # 높이 고정 (스크롤 가능)
+        key=f"{session_key_prefix}_editor" # 고유 키 설정
     )
 
-    if selected_titles:
-        selected_goods = {
-            title: search_results[title]
-            for title in selected_titles
-        }
-        st.info(f"📌 {len(selected_goods)}개 책 선택됨")
-        return selected_goods
+    # 4. 선택된 행 필터링 및 반환 포맷 변환
+    # '선택' 컬럼이 True인 행만 추출
+    selected_rows = edited_df[edited_df["선택"] == True]
 
-    return {}
+    if not selected_rows.empty:
+        # 기존 로직과 호환되도록 {제목: 상품번호} 딕셔너리로 변환
+        selected_goods = dict(zip(selected_rows["제목"], selected_rows["상품번호"]))
+        
+        st.info(f"📌 총 {len(selected_goods)}개 책이 선택되었습니다.")
+        return selected_goods
+    else:
+        return {}
 
 
 def crawl_selected_reviews(selected_goods_dict, max_reviews, review_crawler_func):
