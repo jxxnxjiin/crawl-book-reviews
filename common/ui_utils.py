@@ -123,7 +123,7 @@ def render_search_results_selection(search_results, session_key_prefix):
     # 1. 데이터프레임 생성 (기본적으로 '선택' 컬럼은 False)
     # 딕셔너리를 리스트로 변환
     data_list = [
-        {"선택": False, "제목": title, "상품번호": str(goods_no)} 
+        {"제목": title, "상품번호": str(goods_no), "선택": False} 
         for title, goods_no in search_results.items()
     ]
     df = pd.DataFrame(data_list)
@@ -157,11 +157,6 @@ def render_search_results_selection(search_results, session_key_prefix):
                 "제목",
                 width="large",
                 disabled=True  # 제목은 수정 불가능하게 설정
-            ),
-            "상품번호": st.column_config.TextColumn(
-                "상품번호",
-                width="medium",
-                disabled=True  # 번호도 수정 불가능하게 설정
             )
         },
         hide_index=True,          # 인덱스 숨김
