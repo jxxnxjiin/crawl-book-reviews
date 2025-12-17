@@ -119,7 +119,6 @@ def render_search_results_selection(search_results, session_key_prefix):
     # 검색 결과를 데이터프레임으로 표시
     df_results = pd.DataFrame([
         {
-            "번호": idx,
             "제목": title,
             "상품번호": goods_no
         }
