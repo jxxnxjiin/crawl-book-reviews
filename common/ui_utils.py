@@ -157,7 +157,7 @@ def render_search_results_selection(search_results, session_key_prefix):
                 "제목",
                 width="large",
                 disabled=True  # 제목은 수정 불가능하게 설정
-            )
+            ),
         },
         hide_index=True,          # 인덱스 숨김
         use_container_width=True, # 가로폭 꽉 채우기
