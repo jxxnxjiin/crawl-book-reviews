@@ -58,7 +58,7 @@ st.markdown("---")
 # 사이드바 - 크롤러 선택
 crawler = st.pills(
     "메뉴 선택",
-    ["🏠 홈", "📕 Yes24", "📗 교보문고"],
+    ["🏠 홈", "Yes24", "교보문고"],
     selection_mode="single",
     default="🏠 홈",
     label_visibility="collapsed"
