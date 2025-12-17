@@ -71,9 +71,9 @@ st.markdown("---")
 # Yes24 크롤러
 # ==============================================================================
 if crawler == "Yes24":
-    pipeline = st.pills(
+    pipeline = st.segmented_control(
     "파이프라인 선택",
-    [
+    options=[
             "📕 키워드 검색 → 리뷰 크롤링",
             "📗 키워드 검색 → 세부정보 크롤링",
             "📙 카테고리 신간 → 세부정보 추출"
@@ -83,9 +83,9 @@ if crawler == "Yes24":
     )
 
     # 크롤링 모드 선택 (모든 파이프라인 공통)
-    crawl_mode = st.pills(
+    crawl_mode = st.segmented_control(
         "크롤링 모드",
-        ["🤖 자동 크롤링 (상위 N개)", "✋ 직접 선택"],
+        options=["🤖 자동 크롤링 (상위 N개)", "✋ 직접 선택"],
         selection_mode="single"
     )
     st.markdown("---")
@@ -398,9 +398,9 @@ elif crawler == "교보문고":
     st.header("🔍 교보문고 키워드 검색 → 리뷰 크롤링")
 
     # 크롤링 모드 선택
-    crawl_mode = st.pills(
+    crawl_mode = st.segmented_control(
         "크롤링 모드",
-        ["🤖 자동 크롤링 (상위 N개)", "✋ 직접 선택"],
+        options =["🤖 자동 크롤링 (상위 N개)", "✋ 직접 선택"],
         selection_mode="single"
     )
     st.markdown("---")
@@ -410,7 +410,7 @@ elif crawler == "교보문고":
         col1, col2 = st.columns(2)
 
         with col1:
-            keyword = st.text_input("검색 키워드", placeholder="예: 토익", key="kyobo_auto_keyword")
+            keyword = st.text_input("검색 키워드", placeholder="예: 기하와 벡터", key="kyobo_auto_keyword")
 
         with col2:
             order_option = st.selectbox(
@@ -448,7 +448,7 @@ elif crawler == "교보문고":
         col1, col2 = st.columns(2)
 
         with col1:
-            keyword = st.text_input("검색 키워드", placeholder="예: 토익", key="kyobo_manual_keyword")
+            keyword = st.text_input("검색 키워드", placeholder="예: 확률과 통계", key="kyobo_manual_keyword")
 
         with col2:
             search_size = st.number_input("검색 결과 수", min_value=10, max_value=100, value=40, step=10, key="kyobo_manual_size")
